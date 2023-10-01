@@ -7,7 +7,7 @@ const manifest = defineManifest({
   version: "1.0.0",
   action: { default_popup: "index.html" },
   content_scripts: [{ js: ["src/content.ts"], matches: ["https://www.linkedin.com/*"] }],
-  options_page: "src/options/index.html",
+  // options_page: "src/options/index.html",
   background: {
     service_worker: "src/background/background.ts",
     type: "module",
