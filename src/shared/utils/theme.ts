@@ -1,20 +1,5 @@
 import { createTheme, responsiveFontSizes } from "@mui/material/styles";
 
-const token = {
-  primary: {
-    25: "#FFFAF5",
-    50: "#FFF6ED",
-    100: "#FFEAD5",
-    200: "#FDDCAB",
-    300: "#FEB273",
-    400: "#FD853A",
-    500: "#FB6514",
-    600: "#EC4A0A",
-    700: "#C4320A",
-    800: "#53389E",
-    900: "#42307D",
-  },
-};
 declare module "@mui/material/styles" {
   interface TypographyVariants {
     txt20: React.CSSProperties;
