@@ -41,4 +41,4 @@ class Logger {
 }
 
 // Example usage:
-export default Logger;
+export default new Logger();

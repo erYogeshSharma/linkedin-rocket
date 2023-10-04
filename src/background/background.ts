@@ -1,35 +1,30 @@
+import MessageType from "../shared/constants/message-types";
 import STORAGE_KEYS from "../shared/constants/storage-keys";
 import extensionStorage from "../shared/storage/storage";
-import Logger from "../shared/utils/logger";
 import Auth, { API } from "./modules/auth";
 
 const auth = new Auth();
-chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener(async (request) => {
   switch (request.type) {
     // listen to the event
-    case "generate-comment":
+    case MessageType.GET_COMMENT:
       await processGenerateCommentRequest(request);
       break;
-    case "start-auth":
+    case MessageType.START_AUTH:
       await auth.start_auth();
       await auth.check_for_auth_code();
       break;
-
     default:
       console.log("unknown request type", request.type);
   }
 });
 
 async function processGenerateCommentRequest(request: any) {
-  // const config = {
-  //   text: request.text,
-  //   commentType: request.buttonType,
-  // };
-
+  console.log({ request });
   let response: {
     type: string;
     error?: any;
-    parentForm?: any;
+    parentForm?: Element;
     comment?: string;
   } = {
     type: "generate-comment-response",
@@ -41,7 +36,6 @@ async function processGenerateCommentRequest(request: any) {
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
     myHeaders.append("Authorization", `Bearer ${token}`);
-
     const res = await fetch(`${API}/comment/generate-comment`, {
       method: "POST",
       headers: myHeaders,

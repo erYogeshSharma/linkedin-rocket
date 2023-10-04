@@ -2,7 +2,7 @@ import MessageType from "../../shared/constants/message-types";
 import STORAGE_KEYS from "../../shared/constants/storage-keys";
 import extensionStorage from "../../shared/storage/storage";
 
-export const API = "https://b371-2401-4900-1cc4-f670-1db8-77bd-68ce-e186.ngrok-free.app";
+export const API = "https://9e98-2401-4900-1cc5-355b-16d9-244d-a28d-2068.ngrok-free.app";
 function getCurrentTab(): Promise<chrome.tabs.Tab> {
   return new Promise((resolve) => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -34,7 +34,7 @@ class Auth {
   }
 
   async check_for_auth_code() {
-    chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    chrome.tabs.onUpdated.addListener((_tabId, changeInfo, _tab) => {
       if (changeInfo.url?.includes("linkedin")) {
         const url = new URL(changeInfo.url);
         let search = url.search;
