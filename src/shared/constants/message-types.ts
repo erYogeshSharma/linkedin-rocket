@@ -4,5 +4,8 @@ enum MessageType {
   WRITE_COMMENT = "WRITE_COMMENT",
   GET_COMMENT = "GET_COMMENT",
   LOG_OUT = "LOG_OUT",
+  FEED_RELOAD = "FEED_RELOAD",
+
+  RELOAD_CREDITS_LIMIT = "RELOAD_CREDITS_LIMIT",
 }
 export default MessageType;

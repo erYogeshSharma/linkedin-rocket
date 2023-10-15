@@ -1,11 +1,13 @@
 import "./content.css";
-import attachButton from "./ui/react";
+import attachButton from "./components/comment-button";
 import LinkedInClasses from "../shared/constants/linkedin-classes";
-import AccountCard from "./ui/account-card";
+// import AccountCard from "./ui/account-card";
 
-const accountCard = new AccountCard();
-accountCard.init();
-document.addEventListener("focusin", async (event: FocusEvent) => {
+// const accountCard = new AccountCard();
+// accountCard.init();
+// accountCard.listed_for_feed_reload();
+
+document.addEventListener("focusin", async (event: any) => {
   if (event?.target?.classList?.contains(LinkedInClasses.QL_EDITOR)) {
     const parentForm = event.target?.closest("." + LinkedInClasses.COMMENT_BOX);
     console.log(parentForm.classList.contains("crx-root"));

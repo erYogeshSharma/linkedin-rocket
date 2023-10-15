@@ -1,16 +1,11 @@
 import MessageType from "../../shared/constants/message-types";
 import STORAGE_KEYS from "../../shared/constants/storage-keys";
 import extensionStorage from "../../shared/storage/storage";
+import logger from "../../shared/utils/logger";
+import { getCurrentTab } from "../../shared/utils/tabs";
 
-export const API = "https://9e98-2401-4900-1cc5-355b-16d9-244d-a28d-2068.ngrok-free.app";
-function getCurrentTab(): Promise<chrome.tabs.Tab> {
-  return new Promise((resolve) => {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      const currentTab = tabs[0];
-      resolve(currentTab);
-    });
-  });
-}
+export const API = "https://ee98-2401-4900-1cc4-760f-c605-dbaf-29a-fb71.ngrok-free.app";
+
 class Auth {
   isAuthenticating: boolean;
 
@@ -38,6 +33,7 @@ class Auth {
       if (changeInfo.url?.includes("linkedin")) {
         const url = new URL(changeInfo.url);
         let search = url.search;
+
         if (search.includes("?code=")) {
           let code = search.replace("?code=", "");
           if (!this.isAuthenticating) {
@@ -53,8 +49,13 @@ class Auth {
       this.isAuthenticating = true;
       const response = await fetch(`${API}/auth/auth-code/${access_code}`, { method: "post" });
       const data = await response.json();
+      await extensionStorage.save(STORAGE_KEYS.PLAN, data.plan);
       await extensionStorage.save(STORAGE_KEYS.USER, data.user);
       await extensionStorage.save(STORAGE_KEYS.TOKEN, data.token);
+      const currentTab = await getCurrentTab();
+      chrome.tabs.update(currentTab.id || 0, { url: "https://www.linkedin.com/feed" }, () => {
+        logger.info("Code removed from URL");
+      });
       this.isAuthenticating = false;
     } catch (error) {
       this.isAuthenticating = false;

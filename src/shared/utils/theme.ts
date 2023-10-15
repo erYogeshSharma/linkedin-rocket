@@ -1,15 +1,6 @@
 import { createTheme, responsiveFontSizes } from "@mui/material/styles";
 
 declare module "@mui/material/styles" {
-  interface TypographyVariants {
-    txt20: React.CSSProperties;
-  }
-
-  // allow configuration using `createTheme`
-  interface TypographyVariantsOptions {
-    txt12?: React.CSSProperties;
-  }
-
   interface PaletteColor {
     25?: string;
     50?: string;
@@ -43,21 +34,12 @@ declare module "@mui/material/styles" {
 }
 
 // Update the Typography's variant prop options
-declare module "@mui/material/Typography" {
-  interface TypographyPropsVariantOverrides {
-    txt12: true;
-  }
-}
 
 const theme = responsiveFontSizes(
   createTheme({
     typography: {
       htmlFontSize: 10,
       fontSize: 13,
-
-      txt12: {
-        fontSize: 12,
-      },
     },
     palette: {
       primary: { main: "#0072b1" },
@@ -76,6 +58,13 @@ const theme = responsiveFontSizes(
           },
           outlined: {
             background: "#fff",
+          },
+        },
+      },
+      MuiTooltip: {
+        styleOverrides: {
+          tooltipArrow: {
+            fontSize: 15,
           },
         },
       },

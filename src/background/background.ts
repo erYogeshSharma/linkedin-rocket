@@ -1,79 +1,36 @@
 import MessageType from "../shared/constants/message-types";
-import STORAGE_KEYS from "../shared/constants/storage-keys";
-import extensionStorage from "../shared/storage/storage";
-import Auth, { API } from "./modules/auth";
+import Auth from "./modules/auth";
+import CommentBackground from "./modules/comment";
+import { getCurrentTab } from "../shared/utils/tabs";
+import logger from "../shared/utils/logger";
 
 const auth = new Auth();
+const comments = new CommentBackground();
+
 chrome.runtime.onMessage.addListener(async (request) => {
   switch (request.type) {
     // listen to the event
     case MessageType.GET_COMMENT:
-      await processGenerateCommentRequest(request);
+      await comments.processGenerateCommentRequest(request);
       break;
     case MessageType.START_AUTH:
       await auth.start_auth();
       await auth.check_for_auth_code();
+      break;
+    case MessageType.RELOAD_CREDITS_LIMIT:
+      await comments.update_credits();
       break;
     default:
       console.log("unknown request type", request.type);
   }
 });
 
-async function processGenerateCommentRequest(request: any) {
-  console.log({ request });
-  let response: {
-    type: string;
-    error?: any;
-    parentForm?: Element;
-    comment?: string;
-  } = {
-    type: "generate-comment-response",
-    error: "something went wrong",
-  };
-
-  try {
-    const token = await extensionStorage.get(STORAGE_KEYS.TOKEN);
-    var myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-    myHeaders.append("Authorization", `Bearer ${token}`);
-    const res = await fetch(`${API}/comment/generate-comment`, {
-      method: "POST",
-      headers: myHeaders,
-      body: JSON.stringify({
-        commentType: request.buttonType,
-        description: request.description,
-      }),
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, _tab) => {
+  const currentTab = await getCurrentTab();
+  if (changeInfo.url?.includes("/feed") && tabId === currentTab.id) {
+    logger.info("Sending request to reattach card");
+    chrome.tabs.sendMessage(currentTab?.id || 0, {
+      type: MessageType.FEED_RELOAD,
     });
-
-    if (!res.ok) {
-      throw new Error(`HTTP error! Status: ${res.status}`);
-    }
-
-    const json = await res.json();
-    const comment = json.comment;
-
-    response = {
-      type: "generate-comment-response",
-      parentForm: request.parentForm,
-      comment: comment,
-    };
-  } catch (error) {
-    response = {
-      type: "generate-comment-response",
-      error: error,
-    };
   }
-
-  // send the event with response
-  chrome.tabs.query(
-    {
-      active: true,
-      currentWindow: true,
-    },
-    function (tabs) {
-      chrome.tabs.sendMessage(tabs[0].id as number, response, function (response) {
-        console.log("send response", response);
-      });
-    }
-  );
-}
+});
