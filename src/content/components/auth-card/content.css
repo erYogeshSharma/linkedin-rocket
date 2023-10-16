@@ -1,0 +1,61 @@
+.disabled {
+  opacity: 0.8;
+  pointer-events: none;
+}
+body {
+  font-family: "Gabarito", sans-serif;
+  font-family: "Montserrat", sans-serif;
+  font-family: "Raleway", sans-serif;
+}
+.rkt_row {
+  display: flex;
+  flex-direction: row;
+}
+.rkt_col {
+  display: flex;
+  flex-direction: column;
+}
+
+.rkt_account_card {
+  margin-bottom: 10px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15), 0 2px 3px rgba(0, 0, 0, 0.2);
+  transition: box-shadow 83ms;
+  background-color: var(--white, #fff);
+  border-radius: 5px;
+  overflow: hidden;
+  position: relative;
+}
+
+.rkt_account_card .rkt_button {
+  padding: 8px;
+  background-color: #0072b1;
+  box-shadow: none;
+  border: none;
+  color: #fff;
+  font-weight: 500;
+}
+.rkt_link {
+  padding: 0;
+  font-size: 12px;
+}
+.rkt_desc {
+  font-size: 14px;
+  margin: 20px 0;
+  text-align: center;
+}
+.rkt_title {
+  font-size: 18px;
+  font-weight: 600;
+}
+.p_m_0 {
+  padding: 0;
+  margin: 0;
+}
+.refresh_credits {
+  padding: 2px;
+  background-color: #0072b1;
+  font-size: 14px;
+  border-radius: 10px;
+  color: #fff;
+  aspect-ratio: 1/1;
+}

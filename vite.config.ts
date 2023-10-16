@@ -14,10 +14,10 @@ const manifest = defineManifest({
   },
   permissions: ["tabs", "storage"],
   icons: {
-    16: "src/assets/logo.svg",
-    32: "src/assets/logo.svg",
-    48: "src/assets/logo.svg",
-    128: "src/assets/logo.svg",
+    16: "src/assets/logo.png",
+    32: "src/assets/logo.png",
+    48: "src/assets/logo.png",
+    128: "src/assets/logo.png",
   },
 });
 
