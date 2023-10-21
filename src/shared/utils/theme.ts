@@ -1,74 +1,35 @@
 import { createTheme, responsiveFontSizes } from "@mui/material/styles";
 
 declare module "@mui/material/styles" {
-  interface PaletteColor {
-    25?: string;
-    50?: string;
-    200?: string;
-    400?: string;
-    500?: string;
-    600?: string;
+  interface TypographyVariants {
+    txt20: React.CSSProperties;
   }
 
-  interface SimplePaletteColorOptions {
-    25?: string;
-    50?: string;
-    200?: string;
-    400?: string;
-    500?: string;
-    600?: string;
-  }
+  // allow configuration using `createTheme`
+  interface TypographyVariantsOptions {}
 
-  interface TypeText {
-    25?: string;
-    50?: string;
-    200?: string;
-    500?: string;
-    400?: string;
-    600?: string;
-    700?: string;
-    800?: string;
-    900?: string;
-    w9: string;
-  }
+  interface PaletteColor {}
+
+  interface SimplePaletteColorOptions {}
+
+  interface TypeText {}
 }
 
 // Update the Typography's variant prop options
+declare module "@mui/material/Typography" {
+  interface TypographyPropsVariantOverrides {}
+}
 
 const theme = responsiveFontSizes(
   createTheme({
-    typography: {
-      htmlFontSize: 10,
-      fontSize: 13,
-    },
+    typography: {},
     palette: {
-      primary: { main: "#0072b1" },
-    },
-    components: {
-      MuiButton: {
-        styleOverrides: {
-          root: {
-            height: 44,
-            minWidth: 120,
-            borderRadius: 30, //in pixel
-            fontSize: 16,
-            fontWeight: 500,
-            textTransform: "none",
-            boxShadow: "none",
-          },
-          outlined: {
-            background: "#fff",
-          },
-        },
-      },
-      MuiTooltip: {
-        styleOverrides: {
-          tooltipArrow: {
-            fontSize: 15,
-          },
-        },
+      primary: {
+        main: "#0077b5",
       },
     },
+
+    components: {},
   })
 );
 

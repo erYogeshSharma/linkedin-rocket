@@ -1,6 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import CommentButton from "./CommentButton";
+import { ThemeProvider } from "@mui/material/styles";
+import theme from "../../../shared/utils/theme";
 
 export default function attachComponent(parentForm: Element) {
   const root = document.createElement("div");
@@ -10,7 +12,9 @@ export default function attachComponent(parentForm: Element) {
 
   ReactDOM.createRoot(root).render(
     <React.StrictMode>
-      <CommentButton />
+      <ThemeProvider theme={theme}>
+        <CommentButton />
+      </ThemeProvider>
     </React.StrictMode>
   );
 }

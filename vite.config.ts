@@ -8,9 +8,13 @@ const manifest = defineManifest({
   // action: { default_popup: "src/popup/index.html" },
   content_scripts: [{ js: ["src/content/index.ts"], matches: ["https://www.linkedin.com/*"] }],
   // options_page: "src/popup/index.html",
+
   background: {
     service_worker: "src/background/background.ts",
     type: "module",
+  },
+  action: {
+    default_icon: "src/assets/logo.png",
   },
   permissions: ["tabs", "storage"],
   icons: {
