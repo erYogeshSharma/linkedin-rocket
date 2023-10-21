@@ -1,11 +1,7 @@
 import { Rocket } from "@mui/icons-material";
-import { IconButton, Box, Tooltip, Typography } from "@mui/material";
+import { IconButton, Box, Tooltip } from "@mui/material";
 import React, { useState } from "react";
-
 import LinkedInClasses from "../../../shared/constants/linkedin-classes";
-
-import useStorage from "../../../shared/hooks/useStorage";
-import exampleThemeStorage from "../../../shared/storage/exampleThemeStorage";
 import CommentPopover from "./components/CommentPopover";
 
 export type ModalProps = {
@@ -14,7 +10,6 @@ export type ModalProps = {
   post: HTMLElement | null;
 };
 const CommentButton = () => {
-  const theme = useStorage(exampleThemeStorage);
   const [modalProps, setModalProps] = useState<ModalProps>({
     anchorEl: null,
     parentForm: null,
@@ -29,13 +24,10 @@ const CommentButton = () => {
   }
   return (
     <Box>
-      <Typography fontSize={20} onClick={exampleThemeStorage.toggle}>
-        Toggle theme: {theme as string}
-      </Typography>
       <CommentPopover settings={modalProps} setSettings={setModalProps} />
       <Tooltip arrow title="Comment with comment rocket" sx={{ fontSize: 40 }}>
         <IconButton onClick={toggleOpen}>
-          <Rocket color="primary" />
+          <Rocket sx={{ fontSize: 30 }} color="primary" />
         </IconButton>
       </Tooltip>
     </Box>

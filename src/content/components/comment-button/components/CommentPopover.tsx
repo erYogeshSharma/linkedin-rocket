@@ -9,7 +9,7 @@ import {
   Divider,
   LinearProgress,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import * as browser from "webextension-polyfill";
 import MessageType from "../../../../shared/constants/message-types";
 import LinkedInClasses from "../../../../shared/constants/linkedin-classes";
@@ -17,6 +17,8 @@ import LinkedInClasses from "../../../../shared/constants/linkedin-classes";
 
 import SettingsModal from "../../ui/settings/Settings";
 import { ModalProps } from "../CommentButton";
+import useStorage from "../../../../shared/hooks/useStorage";
+import appStore, { AppStoreType } from "../../../../shared/storage/appStorage";
 
 const buttonTypes = [
   {
@@ -39,9 +41,10 @@ type PopoverProps = {
 };
 
 const CommentPopover = (props: PopoverProps) => {
+  const user: AppStoreType = useStorage(appStore);
+  const isLimitOver = user.plan.creditsUsed === user.plan.totalCredits;
   const { settings, setSettings } = props;
   const open = Boolean(settings.anchorEl);
-  const [isLimitOver, setIsLimitOver] = useState(false);
   const [generatingCommentFor, setGeneratingCommentFor] = useState("");
 
   function handlePopoverClose() {
@@ -57,6 +60,28 @@ const CommentPopover = (props: PopoverProps) => {
     setSettingsModalProps((t: any) => ({ tab: tab, open: true }));
   }
 
+  async function emulateWriting(text: string) {
+    let input = settings?.parentForm?.querySelector(".ql-editor p") as HTMLInputElement;
+    input.innerText = " ";
+    let i = 0;
+    let interval = setInterval(() => {
+      if (i < text.length) {
+        input.innerText += text[i];
+        i++;
+        for (let j = 0; j < 10; j++) {
+          if (i < text.length) {
+            input.innerText += text[i];
+            i++;
+          }
+        }
+      } else {
+        clearInterval(interval);
+        // we need to remove `ql-blank` style from the section by LinkedIn div processing logic
+        input?.parentElement?.classList.remove("ql-blank");
+      }
+    }, 10);
+  }
+
   async function generateComment(value: string) {
     setGeneratingCommentFor(value);
     const element = settings?.post?.querySelector(
@@ -70,6 +95,9 @@ const CommentPopover = (props: PopoverProps) => {
       description: textWithoutSeeMore,
     });
     if (response.message === "success") {
+      await emulateWriting(response.data);
+      appStore.creditUsed();
+      setGeneratingCommentFor("");
     }
   }
 
@@ -109,7 +137,7 @@ const CommentPopover = (props: PopoverProps) => {
               }}
             >
               <Stack p={1}>
-                <Typography sx={{ fontSize: "20px" }}>{button.label}</Typography>
+                <Typography fontSize={18}>{button.label}</Typography>
               </Stack>
               {generatingCommentFor === button.value && <LinearProgress />}
             </Stack>

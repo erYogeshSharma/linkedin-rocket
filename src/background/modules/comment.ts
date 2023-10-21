@@ -1,7 +1,7 @@
 import { storage } from "webextension-polyfill";
 import STORAGE_KEYS from "../../shared/constants/storage-keys";
-import { API } from "./auth";
 import logger from "../../shared/utils/logger";
+import { API } from "../constant";
 
 type ResponseCallback = (data: any) => void;
 type Message = {

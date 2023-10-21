@@ -10,7 +10,7 @@ const manifest = defineManifest({
   // options_page: "src/popup/index.html",
 
   background: {
-    service_worker: "src/background/background.ts",
+    service_worker: "src/background/index.ts",
     type: "module",
   },
   action: {

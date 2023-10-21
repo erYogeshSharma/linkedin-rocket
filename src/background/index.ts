@@ -5,11 +5,10 @@ import CommentBackground from "./modules/comment";
 import logger from "../shared/utils/logger";
 
 const auth = new Auth();
-
 const comments = new CommentBackground();
 
 browser.runtime.onMessage.addListener((msg, _, response) => {
-  logger.info("Request Received: ", msg.action);
+  logger.info("Request Received For: ", msg.action);
   switch (msg.action) {
     case MessageType.START_AUTH:
       auth.start_auth(msg, response);
