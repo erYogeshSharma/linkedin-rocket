@@ -28,6 +28,7 @@ class ExtensionStorage {
         if (chrome.runtime.lastError) {
           return reject(chrome.runtime.lastError);
         }
+        console.log(result);
         resolve(result[key]);
       });
     });

@@ -1,8 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import Button from "./Button";
+import CommentButton from "./CommentButton";
+import { ThemeProvider } from "@mui/material/styles";
+import theme from "../../../shared/utils/theme";
 
-export default function attachButton(parentForm: Element) {
+export default function attachComponent(parentForm: Element) {
   const root = document.createElement("div");
   root.id = "crx-root";
   parentForm.classList.add("crx-root");
@@ -10,7 +12,9 @@ export default function attachButton(parentForm: Element) {
 
   ReactDOM.createRoot(root).render(
     <React.StrictMode>
-      <Button />
+      <ThemeProvider theme={theme}>
+        <CommentButton />
+      </ThemeProvider>
     </React.StrictMode>
   );
 }

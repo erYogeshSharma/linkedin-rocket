@@ -7,7 +7,7 @@ const storageMap: Map<BaseStorage<unknown>, WrappedPromise> = new Map();
 export default function useStorage<
   Storage extends BaseStorage<Data>,
   Data = Storage extends BaseStorage<infer Data> ? Data : unknown
->(storage: Storage) {
+>(storage: any) {
   const _data = useSyncExternalStore<Data | null>(storage.subscribe, storage.getSnapshot);
 
   if (!storageMap.has(storage)) {
@@ -43,6 +43,7 @@ function wrapPromise<R>(promise: Promise<R>) {
       } else if (status === "success") {
         return result;
       }
+      return;
     },
   };
 }
