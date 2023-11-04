@@ -1,42 +1,43 @@
-import { CloseOutlined, Settings, SubscriptRounded, Tune } from "@mui/icons-material";
-import { Backdrop, Box, Divider, Fade, IconButton, Modal, Stack, Typography } from "@mui/material";
-import React, { useState } from "react";
-import Prompts from "./childrens/Prompts";
+import { CloseOutlined, FeedbackOutlined, SubscriptRounded, Tune } from "@mui/icons-material";
+import {
+  Backdrop,
+  Divider,
+  Fade,
+  IconButton,
+  Modal,
+  Stack,
+  Theme,
+  Typography,
+} from "@mui/material";
+import React from "react";
+import useStorage from "../../../../shared/hooks/useStorage";
+import appStorage, { AppStorageType, Tab } from "../../../../shared/storage/appStorage";
+import Prompts from "./components/Prompts";
+import Plan from "./components/Plan";
+import Feedback from "./components/Feedback";
 
 const style = {
   position: "absolute" as "absolute",
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: 700,
-  height: 500,
+  width: 800,
+  height: 600,
   bgcolor: "background.paper",
   boxShadow: 24,
   borderRadius: 2,
 };
-type ModalProps = {
-  settings: {
-    tab: string;
-    open: boolean;
-  };
-  setSettings: React.Dispatch<
-    React.SetStateAction<{
-      tab: string;
-      open: boolean;
-    }>
-  >;
-};
 
-const TAB_OPTIONS = [
+const TAB_OPTIONS: { label: string; value: Tab; icon: any }[] = [
   {
     label: "Prompts",
     value: "prompts",
     icon: Tune,
   },
   {
-    label: "Settings",
-    value: "settings",
-    icon: Settings,
+    label: "Feedback",
+    value: "feedback",
+    icon: FeedbackOutlined,
   },
   {
     label: "Plan",
@@ -44,19 +45,18 @@ const TAB_OPTIONS = [
     icon: SubscriptRounded,
   },
 ];
-const SettingsModal = (props: ModalProps) => {
-  const { settings, setSettings } = props;
-  const [currentTab, setCurrentTab] = useState("prompts");
+const SettingsModal = () => {
+  const { settingsModalProps }: AppStorageType = useStorage(appStorage);
 
   function handleClose() {
-    setSettings((s) => ({ tab: "prompts", open: false }));
+    appStorage.closeSettings();
   }
 
   return (
     <Modal
       aria-labelledby="transition-modal-title"
       aria-describedby="transition-modal-description"
-      open={settings.open}
+      open={settingsModalProps.open}
       onClose={handleClose}
       closeAfterTransition
       slots={{ backdrop: Backdrop }}
@@ -66,21 +66,21 @@ const SettingsModal = (props: ModalProps) => {
         },
       }}
     >
-      <Fade in={settings.open}>
-        <Stack sx={style} direction="column" justifyContent="space-between">
+      <Fade in={settingsModalProps.open}>
+        <Stack sx={style} direction="column" justifyContent="flex-start">
           <Stack>
             <Stack p={1} direction="row" alignItems="center" justifyContent="space-between">
-              <Typography variant="h6" fontWeight={600} color="text.primary">
-                Comments Rocket
+              <Typography fontSize={18} fontWeight={600} color="text.primary">
+                Reply Rocket
               </Typography>
               <IconButton onClick={handleClose}>
-                <CloseOutlined />
+                <CloseOutlined sx={{ fontSize: 20 }} />
               </IconButton>
             </Stack>
             <Divider />
           </Stack>
-          <Stack direction="row" height={500} divider={<Divider orientation="vertical" flexItem />}>
-            <Stack width={130}>
+          <Stack direction="row" divider={<Divider orientation="vertical" flexItem />}>
+            <Stack width={130} height={545}>
               <Stack divider={<Divider />}>
                 {TAB_OPTIONS.map((Tab) => (
                   <Stack
@@ -88,25 +88,33 @@ const SettingsModal = (props: ModalProps) => {
                     alignItems="center"
                     spacing={1}
                     key={Tab.label}
-                    onClick={() => setCurrentTab(Tab.value)}
-                    sx={{
+                    onClick={() => appStorage.openSettings(Tab.value)}
+                    sx={(theme) => ({
                       cursor: "pointer",
-                      backgroundColor: Tab.value === currentTab ? "#7875fc" : "#fff",
+                      backgroundColor:
+                        Tab.value === settingsModalProps.tab ? theme.palette.primary.main : "#fff",
                       ":hover": {
-                        backgroundColor: Tab.value === currentTab ? "#7875fc" : "#d3deff",
+                        backgroundColor:
+                          Tab.value === settingsModalProps.tab
+                            ? theme.palette.primary.main
+                            : "#d3deff",
                       },
-                    }}
+                    })}
                     p={1}
                   >
                     <Tab.icon
-                      sx={(theme) => ({
-                        color: Tab.value === currentTab ? "#fff" : theme.palette.text.primary,
+                      sx={(theme: Theme) => ({
+                        fontSize: 20,
+                        color:
+                          Tab.value === settingsModalProps.tab
+                            ? "#fff"
+                            : theme.palette.text.primary,
                       })}
                     />
                     <Typography
-                      fontWeight={500}
-                      variant="body1"
-                      color={Tab.value === currentTab ? "white" : "text.primary"}
+                      fontWeight={600}
+                      fontSize={16}
+                      color={Tab.value === settingsModalProps.tab ? "white" : "text.primary"}
                     >
                       {Tab.label}
                     </Typography>
@@ -115,8 +123,10 @@ const SettingsModal = (props: ModalProps) => {
               </Stack>
               <Divider />
             </Stack>
-            <Stack flexGrow={1}>
-              <Prompts />
+            <Stack height="100%" flexGrow={1} p={1} sx={{ background: "#f5f5f5" }}>
+              {settingsModalProps.tab === "prompts" && <Prompts />}
+              {settingsModalProps.tab === "plan" && <Plan />}
+              {settingsModalProps.tab === "feedback" && <Feedback />}
             </Stack>
           </Stack>
         </Stack>

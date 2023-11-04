@@ -4,7 +4,7 @@ import Icon from "./Icon";
 import { LinkedIn } from "@mui/icons-material";
 import browser from "webextension-polyfill";
 import MessageType from "../../../../shared/constants/message-types";
-import appStore from "../../../../shared/storage/appStorage";
+import appStore from "../../../../shared/storage/authStorage";
 
 const GuestCard = () => {
   const [loading, setLoading] = useState(false);

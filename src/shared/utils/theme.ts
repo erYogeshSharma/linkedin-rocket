@@ -29,7 +29,27 @@ const theme = responsiveFontSizes(
       },
     },
 
-    components: {},
+    components: {
+      MuiButton: {
+        styleOverrides: {
+          root: {
+            fontSize: 15,
+            textTransform: "none",
+            fontWeight: 600,
+          },
+        },
+      },
+      MuiMenuItem: {
+        styleOverrides: {
+          root: {
+            fontSize: 18,
+          },
+        },
+      },
+      MuiTooltip: {
+        styleOverrides: {},
+      },
+    },
   })
 );
 

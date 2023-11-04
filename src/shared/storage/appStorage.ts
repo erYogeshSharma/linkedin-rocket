@@ -1,98 +1,140 @@
 import { BaseStorage, createStorage, StorageType } from "./base";
 
-export type Plan = {
+export type Tab = "prompts" | "feedback" | "plan";
+export type Prompt = {
   _id: string;
-  plan: string;
+  label: string;
+  prompt: string;
   user: string;
-  amount: number;
-  isActive: boolean;
-  expiresOn: string;
-  totalCredits: number;
-  creditsUsed: number;
+  wordLimit: number;
+  isDefault: boolean;
   createdAt: string;
   updatedAt: string;
+  isActive: boolean;
   __v: number;
 };
-export type AppStoreType = {
-  user: {
-    _id: string;
-    linkedInId: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    avatar: string;
-    createdAt: string;
-    updatedAt: string;
-    __v: number;
+export type AppStorageType = {
+  prompts: Prompt[];
+  settingsModalProps: {
+    open: boolean;
+    tab: Tab;
   };
-  token: string;
-  plan: Plan;
+
+  promptForm: {
+    prompt: Prompt;
+    open: boolean;
+    isEdit: boolean;
+  };
 };
 
-const storeInit: AppStoreType = {
-  user: {
-    _id: "",
-    linkedInId: "",
-    firstName: "",
-    lastName: "",
-    email: "",
-    avatar: "",
-    createdAt: "",
-    updatedAt: "",
-    __v: 0,
+const storeInit: AppStorageType = {
+  prompts: [],
+  settingsModalProps: {
+    open: false,
+    tab: "prompts",
   },
-  token: "",
-  plan: {
-    _id: "",
-    plan: "",
-    user: "",
-    amount: 0,
-    isActive: false,
-    expiresOn: "",
-    totalCredits: 0,
-    creditsUsed: 0,
-    createdAt: "",
-    updatedAt: "",
-    __v: 0,
+  promptForm: {
+    prompt: {
+      _id: "",
+      label: "",
+      prompt: "",
+      user: "",
+      wordLimit: 40,
+      isActive: true,
+      isDefault: false,
+      createdAt: "",
+      updatedAt: "",
+      __v: 0,
+    },
+    open: false,
+    isEdit: false,
   },
 };
 
-type AppStorage = BaseStorage<AppStoreType> & {
-  auth: (s: AppStoreType) => void;
-  logOut: () => void;
-  creditUsed: () => void;
-  updatePlan: (p: Plan) => void;
+type appStorage = BaseStorage<AppStorageType> & {
+  addPrompt: (s: Prompt) => void;
+  removePrompt: (promptId: string) => void;
+  openSettings: (tab: Tab) => void;
+  closeSettings: () => void;
+  getPrompts: (s: Prompt[]) => void;
+  openPromptForm: (isEdit: boolean, prompt?: Prompt) => void;
+  closePromptForm: () => void;
+  updatePromptForm: (p: Prompt) => void;
+  updatePrompt: (p: Prompt) => void;
+  changeTab: (t: Tab) => void;
 };
 
-const storage = createStorage<AppStoreType>("app-store-key", storeInit, {
+const storage = createStorage<AppStorageType>("app-store-key", storeInit, {
   storageType: StorageType.Local,
 });
 
-const appStore: AppStorage = {
+const appStorage: appStorage = {
   ...storage,
 
-  auth: (auth: AppStoreType) => {
-    storage.set(() => {
-      return auth;
+  addPrompt: (p: Prompt) => {
+    storage.set((storage) => {
+      return { ...storage, prompts: storage.prompts.concat(p) };
+    });
+  },
+  updatePrompt: (prompt: Prompt) => {
+    storage.set((storage) => {
+      return {
+        ...storage,
+        prompts: storage.prompts.map((p) => (p._id === prompt._id ? prompt : p)),
+      };
     });
   },
 
-  logOut: () => {
-    storage.set(() => {
-      return storeInit;
+  removePrompt: (promptId: string) => {
+    storage.set((storage) => {
+      return { ...storage, prompts: storage.prompts.filter((prompt) => prompt._id !== promptId) };
+    });
+  },
+  openSettings: (tab: Tab) => {
+    storage.set((storage) => {
+      return { ...storage, settingsModalProps: { open: true, tab: tab } };
+    });
+  },
+  changeTab: (tab: Tab) => {
+    storage.set((storage) => {
+      return { ...storage, settingsModalProps: { ...storage.settingsModalProps, tab: tab } };
+    });
+  },
+  closeSettings: () => {
+    storage.set((storage) => {
+      return { ...storage, settingsModalProps: { ...storage.settingsModalProps, open: false } };
+    });
+  },
+  getPrompts: (prompts: Prompt[]) => {
+    storage.set((storage) => {
+      return { ...storage, prompts: prompts };
     });
   },
 
-  creditUsed: () => {
-    storage.set((state) => {
-      return { ...state, plan: { ...state.plan, creditsUsed: state.plan.creditsUsed + 1 } };
+  openPromptForm: (isEdit: boolean, prompt?: Prompt) => {
+    storage.set((storage) => {
+      return {
+        ...storage,
+        promptForm: { open: true, isEdit: isEdit, prompt: prompt || storage.promptForm.prompt },
+      };
     });
   },
-  updatePlan: (plan: Plan) => {
-    storage.set((state) => {
-      return { ...state, plan: plan };
+  updatePromptForm: (prompt: Prompt) => {
+    storage.set((storage) => {
+      return {
+        ...storage,
+        promptForm: { ...storage.promptForm, prompt: prompt },
+      };
+    });
+  },
+  closePromptForm: () => {
+    storage.set((storage) => {
+      return {
+        ...storage,
+        promptForm: { open: false, isEdit: false, prompt: storeInit.promptForm.prompt },
+      };
     });
   },
 };
 
-export default appStore;
+export default appStorage;

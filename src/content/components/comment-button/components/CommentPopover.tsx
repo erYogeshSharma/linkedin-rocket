@@ -1,4 +1,4 @@
-import { AutoFixHigh, CloseOutlined, Settings, Tune } from "@mui/icons-material";
+import { CloseOutlined } from "@mui/icons-material";
 import {
   IconButton,
   Popover,
@@ -9,31 +9,17 @@ import {
   Divider,
   LinearProgress,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as browser from "webextension-polyfill";
 import MessageType from "../../../../shared/constants/message-types";
 import LinkedInClasses from "../../../../shared/constants/linkedin-classes";
 // import emulateWriting from "../../dom-modifiers/comment";
-
-import SettingsModal from "../../ui/settings/Settings";
+import appStorage, { AppStorageType } from "../../../../shared/storage/appStorage";
 import { ModalProps } from "../CommentButton";
 import useStorage from "../../../../shared/hooks/useStorage";
-import appStore, { AppStoreType } from "../../../../shared/storage/appStorage";
-
-const buttonTypes = [
-  {
-    label: "👏 Supportive",
-    value: "Supportive",
-  },
-  {
-    label: "❓ Inquisitive",
-    value: "Inquisitive",
-  },
-  {
-    label: "🙌 Appreciative",
-    value: "Appreciative",
-  },
-];
+import appStore, { AuthStorageType } from "../../../../shared/storage/authStorage";
+import Icon from "../../auth-card/components/Icon";
+import { Settings } from "@mui/icons-material";
 
 type PopoverProps = {
   settings: ModalProps;
@@ -41,23 +27,16 @@ type PopoverProps = {
 };
 
 const CommentPopover = (props: PopoverProps) => {
-  const user: AppStoreType = useStorage(appStore);
-  const isLimitOver = user.plan.creditsUsed === user.plan.totalCredits;
+  const { prompts }: AppStorageType = useStorage(appStorage);
+  const user: AuthStorageType = useStorage(appStore);
+  const isLimitOver = user.plan.creditsUsed >= user.plan.totalCredits;
   const { settings, setSettings } = props;
   const open = Boolean(settings.anchorEl);
   const [generatingCommentFor, setGeneratingCommentFor] = useState("");
+  const [fetching, setFetching] = useState(false);
 
   function handlePopoverClose() {
     setSettings((prevSettings) => ({ ...prevSettings, anchorEl: null }));
-  }
-
-  const [settingsModalProps, setSettingsModalProps] = useState({
-    tab: "prompt",
-    open: false,
-  });
-
-  function openSettings(tab: string) {
-    setSettingsModalProps((t: any) => ({ tab: tab, open: true }));
   }
 
   async function emulateWriting(text: string) {
@@ -83,6 +62,14 @@ const CommentPopover = (props: PopoverProps) => {
   }
 
   async function generateComment(value: string) {
+    if (isLimitOver) {
+      appStorage.openSettings("plan");
+      return;
+    }
+    if (generatingCommentFor.length) {
+      return;
+    }
+
     setGeneratingCommentFor(value);
     const element = settings?.post?.querySelector(
       "." + LinkedInClasses.POST_DESCRIPTION
@@ -91,8 +78,8 @@ const CommentPopover = (props: PopoverProps) => {
     const textWithoutSeeMore = text.replace(/…see more/g, "");
     const response = await browser.runtime.sendMessage({
       action: MessageType.GET_COMMENT,
-      commentType: value,
-      description: textWithoutSeeMore,
+      prompt: value,
+      postDescription: textWithoutSeeMore,
     });
     if (response.message === "success") {
       await emulateWriting(response.data);
@@ -100,6 +87,23 @@ const CommentPopover = (props: PopoverProps) => {
       setGeneratingCommentFor("");
     }
   }
+
+  async function getPrompts() {
+    setFetching(true);
+    const message = await browser.runtime.sendMessage({
+      action: MessageType.GET_PROMPTS,
+    });
+
+    if (message.message === "success") {
+      appStorage.getPrompts(message.data);
+    }
+    setFetching(false);
+  }
+  useEffect(() => {
+    if (prompts.length) {
+      getPrompts();
+    }
+  }, []);
 
   return (
     <Popover
@@ -118,46 +122,51 @@ const CommentPopover = (props: PopoverProps) => {
       disableRestoreFocus
     >
       <Box sx={{ width: 250 }}>
-        <SettingsModal settings={settingsModalProps} setSettings={setSettingsModalProps} />
-        <Stack alignItems="flex-end">
+        <Stack p={1} direction="row" alignItems="center" justifyContent="space-between">
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Icon size={30} />
+            <Typography fontWeight={600} fontSize={18}>
+              ReplyRocket
+            </Typography>
+          </Stack>
           <IconButton onClick={handlePopoverClose}>
-            <CloseOutlined />{" "}
+            <CloseOutlined sx={{ fontSize: 20 }} />{" "}
           </IconButton>
         </Stack>
-        <Stack divider={<Divider />}>
-          {buttonTypes.map((button) => (
-            <Stack
-              key={button.label}
-              onClick={() => generateComment(button.value)}
-              sx={{
-                "&:hover": {
-                  cursor: "pointer",
-                  backgroundColor: "#e6f3ff",
-                },
-              }}
-            >
-              <Stack p={1}>
-                <Typography fontSize={18}>{button.label}</Typography>
+        <Divider />
+        {fetching && <LinearProgress />}
+        <Stack divider={<Divider />} sx={{ maxHeight: 250, overflowY: "auto" }}>
+          {prompts
+            .filter((p) => p.isActive)
+            .map((button) => (
+              <Stack
+                key={button.label}
+                onClick={() => generateComment(button._id)}
+                sx={{
+                  "&:hover": {
+                    cursor: "pointer",
+                    backgroundColor: "#e6f3ff",
+                  },
+                }}
+              >
+                <Stack p={1}>
+                  <Typography
+                    fontSize={15}
+                    color={generatingCommentFor ? "text.disabled" : "text.primary"}
+                    fontWeight={500}
+                  >
+                    {button.label}
+                  </Typography>
+                </Stack>
+                {generatingCommentFor === button._id && <LinearProgress />}
               </Stack>
-              {generatingCommentFor === button.value && <LinearProgress />}
-            </Stack>
-          ))}
-          {isLimitOver && <Typography>Expired</Typography>}
+            ))}
         </Stack>
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <Tooltip title="Make my comment better" arrow>
-            <IconButton>
-              <AutoFixHigh />
-            </IconButton>
-          </Tooltip>
+        <Divider />
+        <Stack direction="row" alignItems="center" spacing={1} p={1}>
           <Tooltip title="Settings" arrow>
-            <IconButton onClick={() => openSettings("settings")}>
-              <Settings />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Tune your comments AI" arrow>
-            <IconButton onClick={() => openSettings("prompts")}>
-              <Tune />
+            <IconButton onClick={() => appStorage.openSettings("prompts")}>
+              <Settings sx={{ fontSize: 20 }} />
             </IconButton>
           </Tooltip>
         </Stack>

@@ -35,7 +35,7 @@ class CommentBackground {
 
   //GENERATE COMMENT
   async processGenerateCommentRequest(
-    msg: { commentType: string; description: string },
+    msg: { prompt: string; postDescription: string },
     response: ResponseCallback
   ) {
     try {
@@ -46,10 +46,7 @@ class CommentBackground {
       const res = await fetch(`${API}/comment/generate-comment`, {
         method: "POST",
         headers: myHeaders,
-        body: JSON.stringify({
-          commentType: msg.commentType,
-          description: msg.description,
-        }),
+        body: JSON.stringify(msg),
       });
 
       const json = await res.json();

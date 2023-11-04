@@ -1,6 +1,5 @@
 import attachButton from "./components/comment-button";
 import LinkedInClasses from "../shared/constants/linkedin-classes";
-import ExtensionClasses from "../shared/constants/extension-classes";
 import logger from "../shared/utils/logger";
 import AttachAccountCard from "./components/auth-card/index";
 
@@ -11,8 +10,6 @@ document.addEventListener("focusin", async (event: any) => {
     const parentForm = event.target?.closest("." + LinkedInClasses.COMMENT_BOX);
     console.log(parentForm.classList.contains("crx-root"));
     if (parentForm && !parentForm.classList.contains("crx-root")) {
-      // add appended class to add buttons only on the first event trigger
-      // this.add_comment_buttons(parentForm);
       attachButton(parentForm);
     } else {
       console.log(
@@ -23,14 +20,25 @@ document.addEventListener("focusin", async (event: any) => {
 });
 
 async function attachAccountCard() {
-  const scaffold = document.querySelector("." + LinkedInClasses.SCAFFOLD);
-  const isCardAttached = scaffold?.classList.contains(ExtensionClasses.ACCOUNT_CARD_ATTACHED);
-  if (!scaffold) {
-    logger.error("Scaffold not found");
-    return;
+  function handleDOMChange() {
+    const scaffold = document.querySelector("." + LinkedInClasses.SCAFFOLD);
+    const isCardAttached = scaffold?.classList.contains("rkt_account_card_attached");
+    if (!scaffold) {
+      logger.error("Scaffold not found");
+      return;
+    }
+
+    if (scaffold && !isCardAttached) {
+      AttachAccountCard(scaffold);
+    }
   }
 
-  if (scaffold && !isCardAttached) {
-    AttachAccountCard(scaffold);
-  }
+  const observerConfig: MutationObserverInit = { attributes: true, childList: true, subtree: true };
+
+  const observer = new MutationObserver(handleDOMChange);
+
+  observer.observe(document.body, observerConfig);
+
+  // To disconnect the observer when you no longer need it
+  // observer.disconnect();
 }
