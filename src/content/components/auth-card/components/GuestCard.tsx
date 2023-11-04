@@ -69,8 +69,12 @@ const GuestCard = () => {
         Authenticate
       </Button>
       <Stack alignItems="center" mt={2}>
-        <Link fontSize={13}>Privacy Policy</Link>
-        <Link fontSize={13}>Terms and Conditions</Link>
+        <Link fontSize={13} target="_blank" href="https://zapminds.com/privacy-policy/">
+          Privacy Policy
+        </Link>
+        <Link fontSize={13} target="_blank" href="https://zapminds.com/terms-conditions/">
+          Terms and Conditions
+        </Link>
       </Stack>
     </Stack>
   );
